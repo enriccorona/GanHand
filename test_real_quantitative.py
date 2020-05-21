@@ -298,11 +298,7 @@ class Test:
         results_percentage_visible_points = []
 
         sampled_rotations = np.load('sample_rotations.npy', allow_pickle=True)
-        #howmanysamples = 5
-        #howmanysamples = 10
-        #howmanysamples = 1
         howmanysamples = 20
-        #sampleevery = 1
         sampleevery = 50
 
         threshold_intersections = 60#150

@@ -3,7 +3,6 @@ import os
 import traceback
 import pickle
 
-from joblib import Parallel, delayed
 import numpy as np
 import trimesh
 from matplotlib import pyplot as plt
@@ -19,8 +18,6 @@ import skvideo
 import skvideo.io as skvio
 import cv2
 
-
-
 # 3D model intersection:
 def get_intersection(hand_verts, hand_faces, obj_verts, obj_faces):
     hand_mesh = trimesh.Trimesh(
@@ -32,15 +29,12 @@ def get_intersection(hand_verts, hand_faces, obj_verts, obj_faces):
     volume = intersect_vox(obj_mesh, hand_mesh, pitch=0.005)
     return volume
 
-
 def intersect_vox(obj_mesh, hand_mesh, pitch=0.01):
     obj_vox = obj_mesh.voxelized(pitch=pitch)
     obj_points = obj_vox.points
     inside = hand_mesh.contains(obj_points)
     volume = inside.sum() * np.power(pitch, 3)
     return volume
-
-
 
 # 3D model simulations
 def run_simulation(

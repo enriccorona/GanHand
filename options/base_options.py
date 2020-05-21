@@ -9,7 +9,8 @@ class BaseOptions():
         self._initialized = False
 
     def initialize(self):
-        self._parser.add_argument('--data_dir', type=str, help='path to dataset')
+        self._parser.add_argument('--data_dir', type=str, default='/media/enric/ganhand/YCB_Affordance/', help='path to dataset')
+        self._parser.add_argument('--mano_dir', type=str, default='/home/enric/libraries/manopth/', help='path to dataset')
         self._parser.add_argument('--train_ids_file', type=str, default='train_ids.csv', help='file containing train ids')
         self._parser.add_argument('--test_ids_file', type=str, default='test_ids.csv', help='file containing test ids')
         self._parser.add_argument('--images_folder', type=str, default='imgs', help='images folder')
@@ -20,7 +21,7 @@ class BaseOptions():
         self._parser.add_argument('--gpu_ids', type=str, default='0', help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
         self._parser.add_argument('--name', type=str, default='experiment_1', help='name of the experiment. It decides where to store samples and models')
         self._parser.add_argument('--dataset_mode', type=str, default='obman', help='chooses dataset to be used')
-        self._parser.add_argument('--model', type=str, default='l2_rgb', help='model to run[l2_rgb, gan_rgb]')
+        self._parser.add_argument('--model', type=str, default='ganhand', help='model to run[l2_rgb, gan_rgb]')
         self._parser.add_argument('--n_threads_test', default=0, type=int, help='# threads for loading data')
         self._parser.add_argument('--checkpoints_dir', type=str, default='./checkpoints', help='models are saved here')
         self._parser.add_argument('--serial_batches', action='store_true', help='if true, takes images in order to make batches, otherwise takes them randomly')

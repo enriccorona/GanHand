@@ -173,7 +173,7 @@ bigfinger_thirdjoint_vertices = [745, 744, 766, 729, 735, 751, 765, 730, 752, 76
 
 # Initialize MANO layer
 MANO = ManoLayer(
-    mano_root='/home/ecorona/hand_grasppoint_gan/manopth/mano/models/', side='right', use_pca=True, ncomps=45, flat_hand_mean=True)
+    mano_root='/home/enric/libraries/manopth/mano/models/', side='right', use_pca=True, ncomps=45, flat_hand_mean=True)
 #if torch.cuda.device_count() > 1:
     #print("Let's use", torch.cuda.device_count(), "GPUs!")
     #MANO = torch.nn.DataParallel(MANO)

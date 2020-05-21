@@ -1,6 +1,5 @@
 from .base_options import BaseOptions
 
-
 class TrainOptions(BaseOptions):
     def initialize(self):
         BaseOptions.initialize(self)
@@ -27,9 +26,9 @@ class TrainOptions(BaseOptions):
         self._parser.add_argument('--lambda_G_different_normals', type=float, default=1, help='')
         self._parser.add_argument('--lambda_G_normals_suit_object', type=float, default=3, help='')
         self._parser.add_argument('--lambda_G_l2', type=float, default=1, help='')
-        self._parser.add_argument('--lambda_G_intersections', type=float, default=0.5, help='')
-        self._parser.add_argument('--lambda_G_fk', type=float, default=0.1, help='')
+        self._parser.add_argument('--lambda_G_intersections', type=float, default=4000.0, help='')
+        self._parser.add_argument('--lambda_G_fk', type=float, default=10, help='')
         self._parser.add_argument('--lambda_G_angles', type=float, default=0.01, help='')
-        self._parser.add_argument('--lambda_G_plane', type=float, default=1.0, help='')
+        self._parser.add_argument('--lambda_G_plane', type=float, default=20.0, help='')
 
         self.is_train = True

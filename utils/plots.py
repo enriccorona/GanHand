@@ -29,8 +29,6 @@ def _rotateY(points, angle):
                    [-np.sin(angle), 0., np.cos(angle)]])
     return np.dot(points, ry)
 
-
-
 def _create_renderer(w=640,
                      h=480,
                      rt=np.zeros(3),
@@ -80,7 +78,6 @@ def _create_depth_renderer(w=640,
     rn.frustum = {'near': near, 'far': far, 'height': h, 'width': w}
     return rn
 
-
 def simple_renderer(rn,
                     verts,
                     faces,
@@ -93,7 +90,6 @@ def simple_renderer(rn,
     from opendr.camera import ProjectPoints
     from opendr.renderer import ColoredRenderer, DepthRenderer
     from opendr.lighting import LambertianPointLight
-
 
     # Construct Back Light (on back right corner)
     rn.vc = LambertianPointLight(
@@ -531,7 +527,6 @@ def plot_video_refining_process_wo_objfaces(obj_verts, list_hand_verts, hand_fac
 
 
 def plot_hand_w_object_newstyle(obj_verts, obj_faces, hand_verts, hand_faces, flip=True, rot=None):
-    #w = h = 648
     w = 640
     h = 480
 
