@@ -9,7 +9,7 @@ class BaseOptions():
         self._initialized = False
 
     def initialize(self):
-        self._parser.add_argument('--data_dir', type=str, default='/media/enric/ganhand/YCB_Affordance/', help='path to dataset')
+        self._parser.add_argument('--data_dir', type=str, default='/media/enric/DATA/ganhand/YCB_Affordance/', help='path to dataset')
         self._parser.add_argument('--mano_dir', type=str, default='/home/enric/libraries/manopth/', help='path to dataset')
         self._parser.add_argument('--train_ids_file', type=str, default='train_ids.csv', help='file containing train ids')
         self._parser.add_argument('--test_ids_file', type=str, default='test_ids.csv', help='file containing test ids')

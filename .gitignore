@@ -1,3 +1,5 @@
-results/
 results2/
 checkpoints/
+*.swp
+__pycache__
+*/__pycache__
