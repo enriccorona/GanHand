@@ -25,7 +25,7 @@ Checkout the github repository to download the [YCB-Affordance dataset](https://
 
 ## Model
 
-<img src='images/architecture.png' align="right" width=90>
+<img src='images/architecture.png' align="right" width=1000>
 
 GanHand takes a single RGB image of one or several objects and predicts how a human would grasp these objects naturally. Our architecture consists of three stages. First, the objects' shapes and locations are estimated in the scene using an object 6D pose estimator or a reconstruction network (red). The predicted shape is then projected onto the image plane to obtaina segmentation mask that is concatenated with the input image and fed to the second sub-network for grasp prediction (blue). Finally, werefine the hand parameters and obtain hand final shapes and poses using a differentiable parametric model MANO (yellow). The model is trained using adversarial, interpenetration, classification and optimization losses, indicated in bold.
 
