@@ -1,0 +1,8 @@
+numpy
+tqdm
+matplotlib
+opencv-python
+pytorch
+torchvision
+glob
+cvxopt
