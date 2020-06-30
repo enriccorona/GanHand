@@ -2,9 +2,9 @@
 [[Project]](http://www.iri.upc.edu/people/ecorona/ganhand/) [[Paper]](http://openaccess.thecvf.com/content_CVPR_2020/papers/Corona_GanHand_Predicting_Human_Grasp_Affordances_in_Multi-Object_Scenes_CVPR_2020_paper.pdf) [[Dataset]](https://github.com/enriccorona/YCB_Affordance)
 
 <p float="left">
-<img src='images/gif_video1.gif' width=300>
-<img src='images/gif_video2.gif' width=300>
-<img src='images/gif_video3.gif' width=300>
+<img src='images/gif_video1.gif' width=200>
+<img src='images/gif_video2.gif' width=200>
+<img src='images/gif_video3.gif' width=200>
 </p>
 
 ## Dataset
