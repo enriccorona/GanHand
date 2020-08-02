@@ -21,7 +21,7 @@ Checkout the github repository to download the [YCB-Affordance dataset](https://
 
 ## Data
 - Link to repository of the data
-- We use [https://github.com/cvlab-epfl/segmentation-driven-pose](https://github.com/cvlab-epfl/segmentation-driven-pose) to estimate the pose of the objects in the YCB-Video dataset . You can download the predictions for all train and test samples from the YCB dataset in TODO:DRIVELINK, and move them in the YCB Affordance dataset folder
+- We use [https://github.com/cvlab-epfl/segmentation-driven-pose](https://github.com/cvlab-epfl/segmentation-driven-pose) to estimate the pose of the objects in the YCB-Video dataset . You can download the predictions for all train and test samples from the YCB dataset in [https://drive.google.com/file/d/1w5k7q2DE2XeVPL-G-C3bfZSnbXOGPTi6/view?usp=sharing](https://drive.google.com/file/d/1w5k7q2DE2XeVPL-G-C3bfZSnbXOGPTi6/view?usp=sharing), and move them in the YCB Affordance dataset folder
 
 ## Model
 
@@ -31,7 +31,7 @@ GanHand takes a single RGB image of one or several objects and predicts how a hu
 
 ## Test
 
-Videos like those in the teaser of the paper can be obtained running the following command. 
+Videos like those in the teaser of the paper can be obtained running the following command. The pretrained model can be downloaded from [this link](https://drive.google.com/file/d/19462M8s3tEXe_1_riHuvQegLxzdX-kl2/view?usp=sharing) and placed under a folder named checkpoints. So the main folder should contain the model checkpoints in /checkpoints/ganhand_pretrained/
 
 ```
 python test.py --dataset_mode ycb_affordances_complete_scene --name ganhand_pretrained --load_epoch 13
