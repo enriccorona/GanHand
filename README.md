@@ -20,7 +20,7 @@ Checkout the github repository to download the [YCB-Affordance dataset](https://
 - **MANO layer**: Follow instructions from the MANO layer project in [here](https://raw.githubusercontent.com/hassony2/manopth).
 
 ## Data
-- Link to repository of the data
+- Download the YCB-Affordance Dataset from [this repository](https://github.com/enriccorona/YCB_Affordance). We use the YCB-Affordance Dataset, an extension of the YCB-Video dataset, to train and test the model. Follow the instructions of the repository to download the dataset. Link this project to the folder where you keep the dataset using the ```data_dir``` argument, when training/testing.
 - We use [https://github.com/cvlab-epfl/segmentation-driven-pose](https://github.com/cvlab-epfl/segmentation-driven-pose) to estimate the pose of the objects in the YCB-Video dataset . You can download the predictions for all train and test samples from the YCB dataset in [https://drive.google.com/file/d/1w5k7q2DE2XeVPL-G-C3bfZSnbXOGPTi6/view?usp=sharing](https://drive.google.com/file/d/1w5k7q2DE2XeVPL-G-C3bfZSnbXOGPTi6/view?usp=sharing), and move them in the YCB Affordance dataset folder
 
 ## Model
