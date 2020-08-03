@@ -275,7 +275,8 @@ class Test:
         #howmanysamples = 4
         howmanysamples = 49
 
-        threshold_intersections = 100 #150
+        threshold_intersections = 50
+        #threshold_intersections = 100 
 
         print("%d TO BE PROCESSED SAMPLES"%(len(self._dataset_test)))
         print("SAMPLING %d POSSIBLE GRASPS"%(howmanysamples))
