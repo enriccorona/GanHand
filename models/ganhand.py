@@ -16,7 +16,7 @@ import trimesh
 import socket
 
 from utils import forward_kinematics_3dof as fk
-import point_cloud_utils as pcu
+#import point_cloud_utils as pcu
 
 from utils import contactutils
 
@@ -51,10 +51,16 @@ class Model(BaseModel):
         self.taxonomy_poses = np.load(opt.data_dir + '/grasp_taxonomy/average_hand_pose_taxonomy.npy')
         self.taxonomy_tensor = torch.FloatTensor(self.taxonomy_poses[:, 0]).cuda()
 
-        self._gradient_accumulation_every = 2
+        self._gradient_accumulation_every = 1#2
         self._gradient_accumulation_current_step = 0
 
         self._use_approach = False
+
+        # Disabling FK for training to make process significantly faster
+        if self._is_train:
+            self.use_fk = False
+        else:
+            self.use_fk = True
 
 
     def _init_create_networks(self):
@@ -209,35 +215,36 @@ class Model(BaseModel):
             # GT IS IN meters, WHILE MANO IS IN mm
             points_3d = points_3d / 1000
 
-            handfullpose = fk.get_fullhandpose(HR)
-            loss_fk = []
-            loss_angles = []
-            loss_angles_2ndjoint = []
-            loss_angles_3rdjoint = []
+            if self.use_fk:
+                handfullpose = fk.get_fullhandpose(HR)
+                loss_fk = []
+                loss_angles = []
+                loss_angles_2ndjoint = []
+                loss_angles_3rdjoint = []
 
-            handfullposes = []
-            all_touching_indexs = []
+                handfullposes = []
+                all_touching_indexs = []
 
-            for i in range(self._B):
-                handfullpose_list, touching_indexs, loss_distance, loss_angle, loss_angle_2ndjoint, loss_angle_3rdjoint = fk.optimize_hand(handfullpose[i].unsqueeze(0), R[i].unsqueeze(0), T[i].unsqueeze(0), self._input_obj_resampled_verts[i][self._input_object_id[i]])
+                for i in range(self._B):
+                    handfullpose_list, touching_indexs, loss_distance, loss_angle, loss_angle_2ndjoint, loss_angle_3rdjoint = fk.optimize_hand(handfullpose[i].unsqueeze(0), R[i].unsqueeze(0), T[i].unsqueeze(0), self._input_obj_resampled_verts[i][self._input_object_id[i]])
 
-                all_touching_indexs.append(touching_indexs)
-                loss_fk.append(loss_distance)
-                loss_angles.append(loss_angle)
-                loss_angles_2ndjoint.append(loss_angle_2ndjoint)
-                loss_angles_3rdjoint.append(loss_angle_3rdjoint)
+                    all_touching_indexs.append(touching_indexs)
+                    loss_fk.append(loss_distance)
+                    loss_angles.append(loss_angle)
+                    loss_angles_2ndjoint.append(loss_angle_2ndjoint)
+                    loss_angles_3rdjoint.append(loss_angle_3rdjoint)
 
-                handfullposes.append(handfullpose_list)
+                    handfullposes.append(handfullpose_list)
 
-            if self._opt.lambda_G_angles > 0 or self._opt.lambda_G_fk > 0:
-                handfullpose = torch.cat(handfullposes)
-                points_3d, joints_3d = fk.get_hand(handfullpose, R, T)
+                if self._opt.lambda_G_angles > 0 or self._opt.lambda_G_fk > 0:
+                    handfullpose = torch.cat(handfullposes)
+                    points_3d, joints_3d = fk.get_hand(handfullpose, R, T)
 
-            self._refined_handpose = points_3d[0].cpu().data.numpy()
-            self._refined_HR = HR
-            self._refined_R = R
-            self._refined_T = T
-            self._class_prediction = torch.argmax(prediction, 1).cpu().data.numpy()
+                self._refined_handpose = points_3d[0].cpu().data.numpy()
+                self._refined_HR = HR
+                self._refined_R = R
+                self._refined_T = T
+                self._class_prediction = torch.argmax(prediction, 1).cpu().data.numpy()
 
             return prediction
 
@@ -252,39 +259,6 @@ class Model(BaseModel):
         dists = torch.sqrt(((matrix1-matrix2)**2).sum(-1))
         dists = dists.min(1)[0]
         return dists
-
-#    def _get_touching_distances(self, hand_points, object_points):
-#        relevant_vertices = hand_points[:, self._touching_hand_vertices]
-#
-#        distances = []
-#        n1 = len(self._touching_hand_vertices)
-#        # TODO: HAVE TO DO IT IN A LOOP SINCE OBJECTS ALL HAVE DIFFERENT AMOUNT OF VERTICES
-#        for i in range(self._B):
-#            n2 = len(object_points[i])
-#
-#            matrix1 = relevant_vertices[i].unsqueeze(0).repeat(n2, 1, 1)
-#            if torch.cuda.is_available():
-#                matrix2 = torch.FloatTensor(object_points[i]).cuda().unsqueeze(1).repeat(1, n1, 1)
-#            else:
-#                matrix2 = torch.FloatTensor(object_points[i]).unsqueeze(1).repeat(1, n1, 1)
-#            dists = torch.sqrt(((matrix1-matrix2)**2).sum(-1))
-#            distances.append(dists.min(0)[0])
-#
-#        return torch.stack(distances)
-
-    def _get_distances_single_example(self, relevant_vertices, object_points):
-        distances = []
-        n1 = len(relevant_vertices) 
-        # TODO: HAVE TO DO IT IN A LOOP SINCE OBJECTS ALL HAVE DIFFERENT AMOUNT OF VERTICES
-        n2 = len(object_points)
-
-        matrix1 = relevant_vertices.unsqueeze(0).repeat(n2, 1, 1)
-        if torch.cuda.is_available():
-            matrix2 = torch.FloatTensor(object_points).cuda().unsqueeze(1).repeat(1, n1, 1)
-        else:
-            matrix2 = torch.FloatTensor(object_points).unsqueeze(1).repeat(1, n1, 1)
-        dists = torch.sqrt(((matrix1-matrix2)**2).sum(-1))
-        return dists.min(0)[0]
 
     def optimize_parameters(self, train_generator=True, keep_data_for_visuals=False):
         if self._is_train:
@@ -362,18 +336,12 @@ class Model(BaseModel):
 
             allpoints_resampled = torch.FloatTensor(self._input_obj_resampled_verts[i]).cuda().reshape(-1, 3).unsqueeze(0)
             dists = util.batch_pairwise_dist(points_3d[i, penetr_mask[0]].unsqueeze(0), allpoints_resampled)
-            #dists = util.batch_pairwise_dist(points_3d[i, penetr_mask[0]].unsqueeze(0), all_verts.unsqueeze(0))
             mins21, _ = torch.min(dists, 2)
             interpenetration = interpenetration + mins21.mean()
 
         self._loss_g_interpenetration = interpenetration/self._B * self._opt.lambda_G_intersections
 
         relevantobjs_resampled = torch.FloatTensor([self._input_obj_resampled_verts[i][self._input_object_id[i]] for i in range(self._B)]).cuda()
-
-        #relevantobjs_resampled = []
-        #for i in range(self._B):
-        #    relevantobjs_resampled.append(self._input_obj_resampled_verts[i][self._input_object_id[i]])
-        #relevantobjs_resampled = torch.FloatTensor(relevantobjs_resampled).cuda()
 
         distance_touching_vertices_fake = self._get_touching_distances(points_3d, relevantobjs_resampled)
         self._loss_g_contactloss = distance_touching_vertices_fake.mean()*self._opt.lambda_G_contactloss
@@ -395,28 +363,29 @@ class Model(BaseModel):
         self._loss_g_fake = self._compute_loss_D(d_fake_prob, True)*self._opt.lambda_D_prob
 
         # LOSS FORWARD KINEMATICS:
-        if self._opt.lambda_G_angles > 0 or self._opt.lambda_G_fk > 0:
-            handfullpose = fk.get_fullhandpose(HR)
-            loss_fk = []
-            loss_angles = []
-            loss_angles_2ndjoint = []
-            loss_angles_3rdjoint = []
+        if self.use_fk:
+            if self._opt.lambda_G_angles > 0 or self._opt.lambda_G_fk > 0:
+                handfullpose = fk.get_fullhandpose(HR)
+                loss_fk = []
+                loss_angles = []
+                loss_angles_2ndjoint = []
+                loss_angles_3rdjoint = []
 
-            for i in range(self._B):
-                handfullpose_list, touching_indexs, loss_distance, loss_angle, loss_angle_2ndjoint, loss_angle_3rdjoint = fk.optimize_hand(handfullpose[i].unsqueeze(0), R[i].unsqueeze(0), T[i].unsqueeze(0), self._input_obj_resampled_verts[i][self._input_object_id[i]])
-                loss_fk.append(loss_distance)
-                loss_angles.append(loss_angle)
-                loss_angles_2ndjoint.append(loss_angle_2ndjoint)
-                loss_angles_3rdjoint.append(loss_angle_3rdjoint)
+                for i in range(self._B):
+                    handfullpose_list, touching_indexs, loss_distance, loss_angle, loss_angle_2ndjoint, loss_angle_3rdjoint = fk.optimize_hand(handfullpose[i].unsqueeze(0), R[i].unsqueeze(0), T[i].unsqueeze(0), self._input_obj_resampled_verts[i][self._input_object_id[i]])
+                    loss_fk.append(loss_distance)
+                    loss_angles.append(loss_angle)
+                    loss_angles_2ndjoint.append(loss_angle_2ndjoint)
+                    loss_angles_3rdjoint.append(loss_angle_3rdjoint)
 
-            self._loss_g_fk = torch.stack(loss_fk).mean()*self._opt.lambda_G_fk
-            self._loss_g_angles = torch.stack(loss_angles).mean()*self._opt.lambda_G_angles
-            self._loss_g_angles_2ndjoint = torch.stack(loss_angles_2ndjoint).mean()*self._opt.lambda_G_angles
-            self._loss_g_angles_3rdjoint = torch.stack(loss_angles_3rdjoint).mean()*self._opt.lambda_G_angles
+                self._loss_g_fk = torch.stack(loss_fk).mean()*self._opt.lambda_G_fk
+                self._loss_g_angles = torch.stack(loss_angles).mean()*self._opt.lambda_G_angles
+                self._loss_g_angles_2ndjoint = torch.stack(loss_angles_2ndjoint).mean()*self._opt.lambda_G_angles
+                self._loss_g_angles_3rdjoint = torch.stack(loss_angles_3rdjoint).mean()*self._opt.lambda_G_angles
 
-            points_3d, joints_3d = fk.get_hand(handfullpose, R, T)
+                points_3d, joints_3d = fk.get_hand(handfullpose, R, T)
 
-        self._refined_handpose = points_3d[0].cpu().data.numpy()
+            self._refined_handpose = points_3d[0].cpu().data.numpy()
 
         # combine losses
         return self._loss_g_CE + self._loss_g_fake + self._loss_g_interpenetration + self._loss_g_fk + self._loss_g_angles + self._loss_g_angles_2ndjoint + self._loss_g_angles_3rdjoint + self._loss_g_contactloss + self._loss_g_plane

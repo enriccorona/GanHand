@@ -12,10 +12,10 @@ from sklearn.cluster import KMeans
 import socket
 from scipy import ndimage
 
-from sklearn.decomposition import PCA
-import point_cloud_utils as pcu
-import pandas as pd
-import cv2
+#from sklearn.decomposition import PCA
+#import point_cloud_utils as pcu
+#import pandas as pd
+#import cv2
 
 def fast_load_obj(file_obj, **kwargs):
     """
