@@ -28,7 +28,7 @@ import pyquaternion
 import utils.plots as plot_utils
 
 from matplotlib import pyplot as plt
-import point_cloud_utils as pcu
+#import point_cloud_utils as pcu
 
 from manopth.manolayer import ManoLayer
 import transforms3d
